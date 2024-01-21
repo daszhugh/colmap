@@ -189,6 +189,45 @@ class ReprojErrorConstantPoint3DCostFunction {
   const double point3D_z_;
 };
 
+// Bundle adjustment cost function for variable point3d.
+class Point3DErrorCostFunction {
+ public:
+  Point3DErrorCostFunction(const Eigen::Vector3d& measured_point3D,
+                           const double weight_xy,
+                           const double weight_z)
+      : measured_point3D_x_(measured_point3D(0)),
+        measured_point3D_y_(measured_point3D(1)),
+        measured_point3D_z_(measured_point3D(2)),
+        weight_xy_(weight_xy),
+        weight_z_(weight_z) {}
+
+  static ceres::CostFunction* Create(const Eigen::Vector3d& prior_point3D,
+                                     const double weight_xy,
+                                     const double weight_z) {
+    return (new ceres::AutoDiffCostFunction<Point3DErrorCostFunction, 3, 3>(
+        new Point3DErrorCostFunction(prior_point3D, weight_xy, weight_z)));
+  }
+
+  template <typename T>
+  bool operator()(const T* const estimated_point3D, T* residuals) const {
+    residuals[0] =
+        T(weight_xy_) * (estimated_point3D[0] - T(measured_point3D_x_));
+    residuals[1] =
+        T(weight_xy_) * (estimated_point3D[1] - T(measured_point3D_y_));
+    residuals[2] =
+        T(weight_z_) * (estimated_point3D[2] - T(measured_point3D_z_));
+    return true;
+  }
+
+ private:
+  const double measured_point3D_x_;
+  const double measured_point3D_y_;
+  const double measured_point3D_z_;
+
+  const double weight_xy_;
+  const double weight_z_;
+};
+
 // Rig bundle adjustment cost function for variable camera pose and calibration
 // and point parameters. Different from the standard bundle adjustment function,
 // this cost function is suitable for camera rigs with consistent relative poses
