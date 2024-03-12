@@ -595,18 +595,20 @@ class Point3DErrorCostFunction {
 // splitting SE(3) into SO(3) x R^3. The 6x6 covariance matrix is defined in the
 // reference frame of the camera. Its first and last three components correspond
 // to the rotation and translation errors, respectively.
-struct AbsolutePoseErrorCostFunction {
+struct MetricAbsolutePoseErrorCostFunction {
  public:
-  AbsolutePoseErrorCostFunction(const Rigid3d& cam_from_world,
-                                const EigenMatrix6d& covariance_cam)
+  MetricAbsolutePoseErrorCostFunction(const Rigid3d& cam_from_world,
+                                      const EigenMatrix6d& covariance_cam)
       : world_from_cam_(Inverse(cam_from_world)),
         sqrt_information_cam_(covariance_cam.inverse().llt().matrixL()) {}
 
   static ceres::CostFunction* Create(const Rigid3d& cam_from_world,
                                      const EigenMatrix6d& covariance_cam) {
     return (
-        new ceres::AutoDiffCostFunction<AbsolutePoseErrorCostFunction, 6, 4, 3>(
-            new AbsolutePoseErrorCostFunction(cam_from_world, covariance_cam)));
+        new ceres::
+            AutoDiffCostFunction<MetricAbsolutePoseErrorCostFunction, 6, 4, 3>(
+                new MetricAbsolutePoseErrorCostFunction(cam_from_world,
+                                                        covariance_cam)));
   }
 
   template <typename T>

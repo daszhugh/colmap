@@ -262,8 +262,8 @@ TEST(PoseGraphOptimization, AbsolutePose) {
   EigenMatrix6d covariance_cam = EigenMatrix6d::Identity();
   covariance_cam(5, 5) = 4;
   std::unique_ptr<ceres::CostFunction> cost_function(
-      AbsolutePoseErrorCostFunction::Create(mes_cam_from_world,
-                                            covariance_cam));
+      MetricAbsolutePoseErrorCostFunction::Create(mes_cam_from_world,
+                                                  covariance_cam));
 
   double cam_from_world_rotation[4] = {0, 0, 0, 1};
   double cam_from_world_translation[3] = {0, 0, 0};
