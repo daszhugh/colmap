@@ -339,12 +339,13 @@ void PoseGraphOptimization::AddPairToProblem(
 
   Eigen::Quaterniond q_ab_measured;
   Eigen::Vector3d p_ab_measured;
-  double weight_rotation = 1.0;
-  double weight_position = 1.0;
+
+  Eigen::Matrix<double, 6, 6> sqrt_information =
+      Eigen::Matrix<double, 6, 6>::Identity();
 
   // Add residuals to pose graph optimization problem.
   ceres::CostFunction* cost_function = PoseErrorCostFunction::Create(
-      q_ab_measured, p_ab_measured, weight_rotation, weight_position);
+      q_ab_measured, p_ab_measured, sqrt_information);
 
   problem_->AddResidualBlock(cost_function,
                              loss_function,

@@ -442,23 +442,19 @@ class PoseErrorCostFunction {
  public:
   PoseErrorCostFunction(const Eigen::Quaterniond& q_ab_measured,
                         const Eigen::Vector3d& t_ab_measured,
-                        const double weight_rotation,
-                        const double weight_translation)
+                        Eigen::Matrix<double, 6, 6> sqrt_information)
       : q_ab_measured_(q_ab_measured),
         t_ab_measured_(t_ab_measured),
-        weight_rotation_(2.0 * weight_rotation),
-        weight_translation_(weight_translation) {}
+        sqrt_information_(std::move(sqrt_information)) {}
 
-  static ceres::CostFunction* Create(const Eigen::Quaterniond& q_ab_measured,
-                                     const Eigen::Vector3d& t_ab_measured,
-                                     const double weight_rotation = 1.0,
-                                     const double weight_translation = 1.0) {
+  static ceres::CostFunction* Create(
+      const Eigen::Quaterniond& q_ab_measured,
+      const Eigen::Vector3d& t_ab_measured,
+      Eigen::Matrix<double, 6, 6> sqrt_information) {
     return (
         new ceres::AutoDiffCostFunction<PoseErrorCostFunction, 6, 4, 3, 4, 3>(
-            new PoseErrorCostFunction(q_ab_measured,
-                                      t_ab_measured,
-                                      weight_rotation,
-                                      weight_translation)));
+            new PoseErrorCostFunction(
+                q_ab_measured, t_ab_measured, sqrt_information)));
   }
 
   template <typename T>
@@ -488,12 +484,13 @@ class PoseErrorCostFunction {
     // [ translation      ]   [ delta_t          ]
     // [ orientation (3x1)] = [ 2 * delta_q(0:2) ]
     Eigen::Map<Eigen::Matrix<T, 6, 1>> residuals_ref(residuals);
-    residuals_ref.template block<3, 1>(3, 0) =
-        T(weight_rotation_) * delta_q.vec();
+    residuals_ref.template block<3, 1>(3, 0) = delta_q.vec();
 
     residuals_ref.template block<3, 1>(0, 0) =
-        T(weight_translation_) *
         (t_ab_estimated - t_ab_measured_.template cast<T>());
+
+    // Scale the residuals by the measurement uncertainty.
+    residuals_ref.applyOnTheLeft(sqrt_information_.template cast<T>());
 
     return true;
   }
@@ -501,8 +498,9 @@ class PoseErrorCostFunction {
  private:
   Eigen::Quaterniond q_ab_measured_;
   Eigen::Vector3d t_ab_measured_;
-  double weight_rotation_;
-  double weight_translation_;
+
+  // The square root of the measurement information matrix.
+  const Eigen::Matrix<double, 6, 6> sqrt_information_;
 };
 
 class PoseCenterErrorCostFunction {
