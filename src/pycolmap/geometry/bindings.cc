@@ -80,6 +80,7 @@ void BindGeometry(py::module& m) {
       .def_readwrite("rotation", &Rigid3d::rotation)
       .def_readwrite("translation", &Rigid3d::translation)
       .def("matrix", &Rigid3d::ToMatrix)
+      .def("adjoint", &Rigid3d::Adjoint)
       .def("essential_matrix", &EssentialMatrixFromPose)
       .def(py::self * Rigid3d())
       .def(py::self * Eigen::Vector3d())
@@ -92,6 +93,11 @@ void BindGeometry(py::module& m) {
                     t.translation.transpose();
            })
       .def("inverse", static_cast<Rigid3d (*)(const Rigid3d&)>(&Inverse))
+      .def("get_covariance_for_inverse",
+           static_cast<Eigen::Matrix6d (*)(const Rigid3d&,
+                                           const Eigen::Matrix6d&)>(
+               &GetCovarianceForRigid3dInverse),
+           py::arg("covar"))
       .def_static("interpolate", &InterpolateCameraPoses)
       .def("__repr__", [](const Rigid3d& self) {
         std::stringstream ss;
