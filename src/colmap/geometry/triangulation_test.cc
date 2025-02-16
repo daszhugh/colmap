@@ -1,4 +1,4 @@
-// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
+// Copyright (c), ETH Zurich and UNC Chapel Hill.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -99,6 +99,16 @@ TEST(CalculateTriangulationAngle, Nominal) {
   EXPECT_NEAR(CalculateTriangulationAngles(
                   tvec1, tvec2, {Eigen::Vector3d(0, 0, 50)})[0],
               0.019997333973,
+              1e-8);
+  EXPECT_NEAR(CalculateTriangulationAngles(Eigen::Vector3d::Zero(),
+                                           Eigen::Vector3d::Zero(),
+                                           {Eigen::Vector3d(0, 0, 50)})[0],
+              0.,
+              1e-8);
+  EXPECT_NEAR(CalculateTriangulationAngles(Eigen::Vector3d::Zero(),
+                                           Eigen::Vector3d(50, 0, 50),
+                                           {Eigen::Vector3d(0, 0, 50)})[0],
+              M_PI / 2,
               1e-8);
 }
 

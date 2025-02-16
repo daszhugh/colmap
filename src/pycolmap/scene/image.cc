@@ -47,14 +47,16 @@ void BindImage(py::module& m) {
            "name"_a = "",
            py::arg_v("points2D", Point2DVector(), "ListPoint2D()"),
            "cam_from_world"_a = py::none(),
-           "camera_id"_a = kInvalidCameraId,
-           "id"_a = kInvalidImageId)
+           py::arg_v(
+               "camera_id", kInvalidCameraId, "pycolmap.INVALID_CAMERA_ID"),
+           py::arg_v("id", kInvalidImageId, "pycolmap.INVALID_IMAGE_ID"))
       .def(py::init(&MakeImage<Eigen::Vector2d>),
            "name"_a = "",
            "keypoints"_a = std::vector<Eigen::Vector2d>(),
            "cam_from_world"_a = Rigid3d(),
-           "camera_id"_a = kInvalidCameraId,
-           "id"_a = kInvalidImageId)
+           py::arg_v(
+               "camera_id", kInvalidCameraId, "pycolmap.INVALID_CAMERA_ID"),
+           py::arg_v("id", kInvalidImageId, "pycolmap.INVALID_IMAGE_ID"))
       .def_property("image_id",
                     &Image::ImageId,
                     &Image::SetImageId,
@@ -84,7 +86,13 @@ void BindImage(py::module& m) {
           py::overload_cast<const std::optional<Rigid3d>&>(
               &Image::SetCamFromWorld),
           "The pose of the image, defined as the transformation from world to "
-          "camera space. None if the image is not registered.")
+          "camera space. None if the image is not registered. Will throw an "
+          "error if a non-trivial frame (rig) is present.")
+      .def("compose_cam_from_world",
+           &Image::ComposeCamFromWorld,
+           "The pose of the image, defined as the transformation from world to "
+           "camera space. This method is read-only and support non-trivial "
+           "frame (rig).")
       .def_property_readonly(
           "has_pose", &Image::HasPose, "Whether the image has a valid pose.")
       .def("reset_pose", &Image::ResetPose, "Invalidate the pose of the image.")

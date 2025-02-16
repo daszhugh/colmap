@@ -1,4 +1,4 @@
-// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
+// Copyright (c), ETH Zurich and UNC Chapel Hill.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -446,7 +446,7 @@ struct DelaunayMeshingEdgeWeightComputer {
     }
 
     distance_sigma_ = distance_sigma_factor *
-                      std::max(std::sqrt(Percentile(edge_lengths, 25)), 1e-7f);
+                      std::max(std::sqrt(Percentile(edge_lengths, 25)), 1e-7);
     distance_threshold_ = 5 * distance_sigma_;
     distance_normalization_ = -0.5 / (distance_sigma_ * distance_sigma_);
   }

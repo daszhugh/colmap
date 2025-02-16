@@ -1,4 +1,4 @@
-// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
+// Copyright (c), ETH Zurich and UNC Chapel Hill.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -119,14 +119,14 @@ struct IncrementalPipelineOptions {
   bool ba_use_gpu = false;
   std::string ba_gpu_index = "-1";
 
-  // Whether to use prior camera positions
+  // Whether to use priors on the camera positions.
   bool use_prior_position = false;
 
-  // Whether to use a robust loss on prior locations
+  // Whether to use a robust loss on prior camera positions.
   bool use_robust_loss_on_prior_position = false;
 
-  // Threshold on the residual for the robust loss
-  // (chi2 for 3DOF at 95% = 7.815)
+  // Threshold on the residual for the robust position prior loss
+  // (chi2 for 3DOF at 95% = 7.815).
   double prior_position_loss_scale = 7.815;
 
   // Path to a folder with reconstruction snapshots during incremental
@@ -135,9 +135,9 @@ struct IncrementalPipelineOptions {
   std::string snapshot_path = "";
   int snapshot_images_freq = 0;
 
-  // Which images to reconstruct. If no images are specified, all images will
-  // be reconstructed by default.
-  std::unordered_set<std::string> image_names;
+  // Optional list of image names to reconstruct. If no images are specified,
+  // all images will be reconstructed by default.
+  std::vector<std::string> image_names;
 
   // If reconstruction is provided as input, fix the existing image poses.
   bool fix_existing_images = false;

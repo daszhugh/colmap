@@ -1,4 +1,4 @@
-// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
+// Copyright (c), ETH Zurich and UNC Chapel Hill.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -115,6 +115,10 @@ std::optional<BACovariance> EstimateBACovariance(
     const BACovarianceOptions& options,
     const Reconstruction& reconstruction,
     BundleAdjuster& bundle_adjuster);
+std::optional<BACovariance> EstimateBACovarianceFromProblem(
+    const BACovarianceOptions& options,
+    const Reconstruction& reconstruction,
+    ceres::Problem& problem);
 
 namespace internal {
 

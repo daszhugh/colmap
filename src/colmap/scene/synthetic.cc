@@ -1,4 +1,4 @@
-// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
+// Copyright (c), ETH Zurich and UNC Chapel Hill.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -282,15 +282,14 @@ void SynthesizeDataset(const SyntheticDatasetOptions& options,
     }
 
     if (options.use_prior_position) {
-      const Eigen::Vector3d noise(
-          RandomGaussian<double>(0, options.prior_position_stddev),
-          RandomGaussian<double>(0, options.prior_position_stddev),
-          RandomGaussian<double>(0, options.prior_position_stddev));
-
-      PosePrior noisy_prior(proj_center + noise,
+      PosePrior noisy_prior(proj_center,
                             PosePrior::CoordinateSystem::CARTESIAN);
 
       if (options.prior_position_stddev > 0.) {
+        noisy_prior.position += Eigen::Vector3d(
+            RandomGaussian<double>(0, options.prior_position_stddev),
+            RandomGaussian<double>(0, options.prior_position_stddev),
+            RandomGaussian<double>(0, options.prior_position_stddev));
         noisy_prior.position_covariance = options.prior_position_stddev *
                                           options.prior_position_stddev *
                                           Eigen::Matrix3d::Identity();
@@ -315,7 +314,7 @@ void SynthesizeDataset(const SyntheticDatasetOptions& options,
 
     image.SetImageId(image_id);
     image.SetPoints2D(points2D);
-    reconstruction->AddImage(std::move(image));
+    reconstruction->AddImage(image);
     reconstruction->RegisterImage(image_id);
   }
 

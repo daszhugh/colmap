@@ -1,4 +1,4 @@
-// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
+// Copyright (c), ETH Zurich and UNC Chapel Hill.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 
 namespace colmap {
 namespace {
+
 struct UTMParams {
   // The order of the series expansion, determining the precision.
   static constexpr int kOrder = 4;
@@ -365,16 +366,6 @@ std::vector<Eigen::Vector3d> GPSTransform::UTMToEll(
   }
 
   return ell;
-}
-
-std::ostream& operator<<(std::ostream& stream, const PosePrior& prior) {
-  const static Eigen::IOFormat kVecFmt(
-      Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", ", ");
-  stream << "PosePrior(position=[" << prior.position.format(kVecFmt)
-         << "], position_covariance=["
-         << prior.position_covariance.format(kVecFmt) << "], coordinate_system="
-         << PosePrior::CoordinateSystemToString(prior.coordinate_system) << ")";
-  return stream;
 }
 
 }  // namespace colmap

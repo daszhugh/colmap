@@ -1,4 +1,4 @@
-// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
+// Copyright (c), ETH Zurich and UNC Chapel Hill.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,14 @@ Rigid3d TestRigid3d() {
   return Rigid3d(Eigen::Quaterniond::UnitRandom(), Eigen::Vector3d::Random());
 }
 
+TEST(CrossProductMatrix, Nominal) {
+  EXPECT_EQ(CrossProductMatrix(Eigen::Vector3d(0, 0, 0)),
+            Eigen::Matrix3d::Zero());
+  Eigen::Matrix3d ref_matrix;
+  ref_matrix << 0, -3, 2, 3, 0, -1, -2, 1, 0;
+  EXPECT_EQ(CrossProductMatrix(Eigen::Vector3d(1, 2, 3)), ref_matrix);
+}
+
 TEST(Rigid3d, Default) {
   const Rigid3d tform;
   EXPECT_EQ(tform.rotation.coeffs(), Eigen::Quaterniond::Identity().coeffs());
@@ -74,13 +82,22 @@ TEST(Rigid3d, Inverse) {
   }
 }
 
-TEST(Rigid3d, Matrix) {
+TEST(Rigid3d, ToMatrix) {
   const Rigid3d b_from_a = TestRigid3d();
   const Eigen::Matrix3x4d b_from_a_mat = b_from_a.ToMatrix();
   for (int i = 0; i < 100; ++i) {
     const Eigen::Vector3d x_in_a = Eigen::Vector3d::Random();
     EXPECT_LT((b_from_a * x_in_a - b_from_a_mat * x_in_a.homogeneous()).norm(),
               1e-6);
+  }
+}
+
+TEST(Rigid3d, FromMatrix) {
+  const Rigid3d b1_from_a = TestRigid3d();
+  const Rigid3d b2_from_a = Rigid3d::FromMatrix(b1_from_a.ToMatrix());
+  for (int i = 0; i < 100; ++i) {
+    const Eigen::Vector3d x_in_a = Eigen::Vector3d::Random();
+    EXPECT_LT((b1_from_a * x_in_a - b2_from_a * x_in_a).norm(), 1e-6);
   }
 }
 
@@ -134,6 +151,16 @@ TEST(Rigid3d, Compose) {
 }
 
 TEST(Rigid3d, Adjoint) {
+  const Rigid3d b_from_a = TestRigid3d();
+  const Eigen::Matrix6d adjoint = b_from_a.Adjoint();
+  const Eigen::Matrix6d adjoint_inv = b_from_a.AdjointInverse();
+  EXPECT_LT((adjoint * adjoint_inv - Eigen::Matrix6d::Identity()).norm(), 1e-6);
+  const Rigid3d a_from_b = Inverse(b_from_a);
+  const Eigen::Matrix6d adjoint_a_from_b = a_from_b.Adjoint();
+  EXPECT_LT((adjoint_inv - adjoint_a_from_b).norm(), 1e-6);
+}
+
+TEST(Rigid3d, CovariancePropagation) {
   const Rigid3d b_from_a = TestRigid3d();
   const Eigen::Matrix6d A = Eigen::Matrix6d::Random();
   const Eigen::Matrix6d cov_b_from_a = A * A.transpose();

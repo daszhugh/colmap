@@ -1,4 +1,4 @@
-// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
+// Copyright (c), ETH Zurich and UNC Chapel Hill.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -122,6 +122,28 @@ TEST(Image, SetResetPose) {
   image.ResetPose();
   EXPECT_FALSE(image.HasPose());
   EXPECT_ANY_THROW(image.CamFromWorld());
+}
+
+TEST(Image, ConstructCopy) {
+  Image image;
+  image.SetCamFromWorld(Rigid3d());
+  Image image_copy = Image(image);
+  EXPECT_EQ(image, image_copy);
+  EXPECT_EQ(Rigid3d(), image_copy.CamFromWorld());
+  image_copy.ResetPose();
+  EXPECT_TRUE(image.HasPose());
+  EXPECT_FALSE(image_copy.HasPose());
+}
+
+TEST(Image, AssignCopy) {
+  Image image;
+  image.SetCamFromWorld(Rigid3d());
+  Image image_copy = image;
+  EXPECT_EQ(image, image_copy);
+  EXPECT_EQ(Rigid3d(), image_copy.CamFromWorld());
+  image_copy.ResetPose();
+  EXPECT_TRUE(image.HasPose());
+  EXPECT_FALSE(image_copy.HasPose());
 }
 
 TEST(Image, NumPoints2D) {

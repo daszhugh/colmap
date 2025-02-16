@@ -1,4 +1,4 @@
-// Copyright (c) 2023, ETH Zurich and UNC Chapel Hill.
+// Copyright (c), ETH Zurich and UNC Chapel Hill.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -452,31 +452,6 @@ TEST(GPS, UTMToEllGRS80) {
   for (size_t i = 0; i < ell.size(); ++i) {
     EXPECT_THAT(ell[i], EigenMatrixNear(ref_ell[i], tolerance));
   }
-}
-
-TEST(PosePrior, Equals) {
-  PosePrior prior;
-  prior.position = Eigen::Vector3d::Zero();
-  prior.position_covariance = Eigen::Matrix3d::Identity();
-  prior.coordinate_system = PosePrior::CoordinateSystem::CARTESIAN;
-  PosePrior other = prior;
-  EXPECT_EQ(prior, other);
-  prior.position.x() = 1;
-  EXPECT_NE(prior, other);
-  other.position.x() = 1;
-  EXPECT_EQ(prior, other);
-}
-
-TEST(PosePrior, Print) {
-  PosePrior prior;
-  prior.position = Eigen::Vector3d::Zero();
-  prior.position_covariance = Eigen::Matrix3d::Identity();
-  prior.coordinate_system = PosePrior::CoordinateSystem::CARTESIAN;
-  std::ostringstream stream;
-  stream << prior;
-  EXPECT_EQ(stream.str(),
-            "PosePrior(position=[0, 0, 0], position_covariance=[1, 0, 0, 0, 1, "
-            "0, 0, 0, 1], coordinate_system=CARTESIAN)");
 }
 
 }  // namespace
